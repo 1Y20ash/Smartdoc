@@ -61,7 +61,10 @@
                 {% for topic in result.topics %}
                 <article class="topic-row {% if loop.first %}dominant{% endif %}">
                     <div class="topic-title">
-                        <strong>Topic {{ topic.number }}</strong>
+                        <div>
+                            <strong>Topic {{ topic.number }}</strong>
+                            <span class="topic-name">{{ topic.name }}</span>
+                        </div>
                         <span class="topic-percentage">{{ "%.1f"|format(topic.probability * 100) }}%</span>
                     </div>
                     <div class="bar"><span style="width: {{ topic.probability * 100 }}%"></span></div>
