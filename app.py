@@ -1,8 +1,9 @@
+from datetime import datetime, timezone
 from pathlib import Path
 
 import fitz
 from docx import Document
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 
 from src.classifier import load_classifier
 from src.preprocessing import clean_text
@@ -121,6 +122,15 @@ def home():
             file_path.unlink(missing_ok=True)
 
     return render_template("index.html", result=result)
+
+
+@app.route("/api/health", methods=["GET"])
+def health_check():
+    return jsonify({
+        "status": "OK",
+        "message": "Your API is running",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }), 200
 
 
 @app.errorhandler(413)
