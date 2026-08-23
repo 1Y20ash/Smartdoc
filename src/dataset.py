@@ -6,6 +6,7 @@ in the Git repository.
 """
 
 from pathlib import Path
+from urllib.request import urlopen
 
 import pandas as pd
 
@@ -17,9 +18,29 @@ LABELS = {
     3: "Sci/Tech",
 }
 
+AG_NEWS_TRAIN_URL = (
+    "https://raw.githubusercontent.com/mhjabreel/CharCnn_Keras/master/data/ag_news_csv/train.csv"
+)
+AG_NEWS_TEST_URL = (
+    "https://raw.githubusercontent.com/mhjabreel/CharCnn_Keras/master/data/ag_news_csv/test.csv"
+)
+
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 TRAIN_PATH = DATA_DIR / "ag_news_train.csv"
 TEST_PATH = DATA_DIR / "ag_news_test.csv"
+
+
+def _download_csv(url: str) -> pd.DataFrame:
+    """Download one AG News CSV and return it as a DataFrame."""
+    with urlopen(url, timeout=60) as response:
+        return pd.read_csv(response, header=None)
+
+
+def download_ag_news() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Download and normalize the official AG News CSV files."""
+    train_raw = _download_csv(AG_NEWS_TRAIN_URL)
+    test_raw = _download_csv(AG_NEWS_TEST_URL)
+    return prepare_dataset(train_raw, test_raw)
 
 
 def prepare_dataset(train_df: pd.DataFrame, test_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -39,6 +60,25 @@ def prepare_dataset(train_df: pd.DataFrame, test_df: pd.DataFrame) -> tuple[pd.D
         frame["category"] = frame["label"].map(LABELS)
 
     return train[["text", "category"]], test[["text", "category"]]
+
+
+def make_balanced_subset(df: pd.DataFrame, samples_per_class: int, random_state: int = 42) -> pd.DataFrame:
+    """Return an equally sized, reproducible subset for each category."""
+    parts = []
+    for category in LABELS.values():
+        category_df = df[df["category"] == category]
+        if len(category_df) < samples_per_class:
+            raise ValueError(
+                f"Not enough documents for {category}: "
+                f"found {len(category_df)}, need {samples_per_class}."
+            )
+        parts.append(category_df.sample(samples_per_class, random_state=random_state))
+
+    return (
+        pd.concat(parts, ignore_index=True)
+        .sample(frac=1, random_state=random_state)
+        .reset_index(drop=True)
+    )
 
 
 def save_dataset(train: pd.DataFrame, test: pd.DataFrame) -> None:
