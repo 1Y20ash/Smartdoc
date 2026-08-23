@@ -3,16 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartDoc</title>
+    <title>SmartDoc | AI Document Analysis</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <main class="container">
-        <h1>SmartDoc</h1>
-        <p>AI-Based Document Topic Modeling and Classification System</p>
-        <div class="card">
-            <p>Document analysis interface coming soon.</p>
-        </div>
+        <header>
+            <p class="eyebrow">AI DOCUMENT INTELLIGENCE</p>
+            <h1>SmartDoc</h1>
+            <p class="subtitle">Discover hidden topics and classify documents using LDA-based machine learning.</p>
+        </header>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert">
+                    {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="card upload-card">
+            <h2>Analyze a document</h2>
+            <p>Upload a PDF, DOCX, or TXT file. Maximum size: 10 MB.</p>
+            <form method="POST" enctype="multipart/form-data">
+                <label class="dropzone" for="document">
+                    <span class="upload-icon">↑</span>
+                    <strong>Choose a document</strong>
+                    <span id="filename">PDF, DOCX or TXT</span>
+                </label>
+                <input id="document" name="document" type="file" accept=".pdf,.docx,.txt" required>
+                <button type="submit">Analyze Document</button>
+            </form>
+        </section>
+
+        {% if result %}
+        <section class="results">
+            <div class="result-header">
+                <div>
+                    <p class="eyebrow">ANALYSIS COMPLETE</p>
+                    <h2>{{ result.filename }}</h2>
+                </div>
+                <div class="category">
+                    <span>Predicted Category</span>
+                    <strong>{{ result.category }}</strong>
+                </div>
+            </div>
+
+            <div class="card topic-card">
+                <div class="section-heading">
+                    <div>
+                        <h2>Discovered Topics</h2>
+                        <p>Topics are ranked by their contribution to this document.</p>
+                    </div>
+                    <span>{{ result.cleaned_word_count }} cleaned words</span>
+                </div>
+
+                {% for topic in result.topics %}
+                <article class="topic-row {% if loop.first %}dominant{% endif %}">
+                    <div class="topic-title">
+                        <strong>Topic {{ topic.number }}</strong>
+                        <span>{{ "%.1f"|format(topic.probability * 100) }}%</span>
+                    </div>
+                    <div class="bar"><span style="width: {{ topic.probability * 100 }}%"></span></div>
+                    <p>{{ topic.words|join(" · ") }}</p>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
     </main>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
