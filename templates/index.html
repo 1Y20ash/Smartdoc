@@ -1,143 +1,102 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SmartDoc uses LDA topic modeling and machine learning to analyze and classify documents.">
-    <title>SmartDoc | AI Document Intelligence</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SmartDoc AI document topic modeling and classification">
+  <title>SmartDoc — Document Intelligence</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg smart-navbar">
-    <div class="container-xxl px-3 px-lg-4">
-        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ url_for('home') }}">
-            <span class="brand-mark">S</span> SmartDoc
-        </a>
-        <span class="navbar-text d-none d-md-block">AI Document Intelligence</span>
+<header class="topbar">
+  <div class="container-xxl px-3 px-lg-4 d-flex align-items-center justify-content-between">
+    <a class="brand" href="{{ url_for('home') }}"><span class="brand-symbol">S</span><span>SmartDoc</span></a>
+    <div class="topbar-meta"><span class="status-dot"></span> AI document intelligence</div>
+  </div>
+</header>
+
+<main class="container-xxl px-3 px-lg-4 py-4 py-lg-5">
+  <section class="intro-row row align-items-end g-4">
+    <div class="col-lg-8">
+      <div class="eyebrow">DOCUMENT INTELLIGENCE</div>
+      <h1>Understand what your<br class="d-none d-md-block"> documents are <em>about.</em></h1>
+      <p class="intro-copy">Upload a document to uncover hidden topics with LDA and classify it with machine learning.</p>
     </div>
-</nav>
+    <div class="col-lg-4 text-lg-end"><span class="model-pill">LDA <b>+</b> LOGISTIC REGRESSION</span></div>
+  </section>
 
-<main>
-<section class="hero-section">
-    <div class="container-xxl px-3 px-lg-4">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-7">
-                <span class="badge rounded-pill hero-badge">TOPIC MODELING + CLASSIFICATION</span>
-                <h1 class="hero-title text-lg-start">Turn documents into <span>structured insight.</span></h1>
-                <p class="hero-subtitle text-lg-start">SmartDoc discovers hidden topics inside your documents with LDA and predicts their category using machine learning.</p>
-            </div>
-            <div class="col-lg-5 d-none d-lg-block">
-                <div class="hero-mini-dashboard">
-                    <div class="mini-top"><span>AI ANALYSIS</span><b>● Live</b></div>
-                    <div class="mini-topic">Technology &amp; Internet</div>
-                    <div class="mini-bar"><span style="width:78%"></span></div>
-                    <div class="mini-meta"><span>Topic contribution</span><strong>78.0%</strong></div>
-                    <div class="mini-tags"><i>internet</i><i>software</i><i>online</i><i>mobile</i></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}<div class="alert alert-danger mt-4">{% for message in messages %}<div>{{ message }}</div>{% endfor %}</div>{% endif %}
+  {% endwith %}
 
-<div class="container-xxl px-3 px-lg-4 pb-5">
-{% with messages = get_flashed_messages() %}
-{% if messages %}<div class="alert alert-danger border-0 shadow-sm rounded-4">{% for message in messages %}<div>{{ message }}</div>{% endfor %}</div>{% endif %}
-{% endwith %}
-
-<!-- UPLOAD VIEW -->
-<section class="workspace upload-workspace mx-auto">
-    <div class="workspace-head">
-        <div>
-            <span class="section-kicker">01 · DOCUMENT INPUT</span>
-            <h2>Upload your document</h2>
-            <p>Give SmartDoc a document and let the model uncover what it is about.</p>
-        </div>
-        <div class="format-pills"><span>PDF</span><span>DOCX</span><span>TXT</span><span>≤ 10 MB</span></div>
-    </div>
-
+  <section class="upload-panel mt-4 mt-lg-5">
+    <div class="panel-label"><span>01</span> UPLOAD DOCUMENT</div>
     <form method="POST" enctype="multipart/form-data" id="uploadForm">
-        <label class="dropzone" for="document">
-            <div class="dropzone-icon"><span>↑</span></div>
-            <strong id="dropTitle">Drop your document here</strong>
-            <span id="filename">Click to browse from your device</span>
-            <small>PDF, DOCX or TXT</small>
-        </label>
-        <input id="document" name="document" type="file" accept=".pdf,.docx,.txt" required>
-        <div class="upload-actions">
-            <div class="privacy-note"><span>✓</span> Processed by your SmartDoc instance</div>
-            <button type="submit" class="btn btn-primary btn-lg" id="analyzeButton">Analyze Document <span>→</span></button>
+      <label class="upload-zone" for="document">
+        <div class="upload-symbol">↑</div>
+        <div class="upload-copy">
+          <strong id="dropTitle">Drop a document here</strong>
+          <span id="filename">or click to browse your device</span>
         </div>
+        <div class="file-types"><span>PDF</span><span>DOCX</span><span>TXT</span><small>MAX 10 MB</small></div>
+      </label>
+      <input id="document" name="document" type="file" accept=".pdf,.docx,.txt" required>
+      <div class="upload-bottom">
+        <span>✓ Your document is processed by SmartDoc</span>
+        <button class="analyze-btn" type="submit" id="analyzeButton">Analyze document <b>→</b></button>
+      </div>
     </form>
-</section>
+  </section>
 
-{% if result %}
-<!-- RESULTS VIEW -->
-<section class="results-section mt-5">
-    <div class="result-toolbar">
-        <div class="min-w-0">
-            <span class="section-kicker">02 · ANALYSIS RESULT</span>
-            <h2 class="result-file text-break">{{ result.filename }}</h2>
-        </div>
-        <div class="result-category"><small>PREDICTED CATEGORY</small><strong>{{ result.category }}</strong></div>
+  {% if result %}
+  <section class="analysis mt-5">
+    <div class="analysis-head">
+      <div><div class="eyebrow">02 · ANALYSIS RESULT</div><h2 class="file-title text-break">{{ result.filename }}</h2></div>
+      <div class="classification"><small>CLASSIFIED AS</small><strong>{{ result.category }}</strong></div>
     </div>
 
-    <div class="result-grid">
-        <div class="result-main workspace">
-            <div class="result-card-head">
-                <div><span class="section-kicker">DOMINANT TOPIC</span><h3>{{ result.dominant_topic.name }}</h3></div>
-                <div class="score-ring"><strong>{{ "%.1f"|format(result.dominant_topic.percentage) }}%</strong><small>Topic {{ result.dominant_topic.number }}</small></div>
-            </div>
-            <div class="topic-progress"><div class="progress-bar" style="width: {{ result.dominant_topic.percentage }}%"></div></div>
-            <div class="keyword-list">{% for word in result.dominant_topic.words %}<span>{{ word }}</span>{% endfor %}</div>
-        </div>
-
-        <aside class="result-side">
-            <div class="insight-panel">
-                <span class="section-kicker">DOCUMENT INSIGHT</span>
-                <div class="insight-number">{{ result.cleaned_word_count }}</div>
-                <strong>Cleaned words</strong>
-                <p>Words remaining after SmartDoc preprocessing and normalization.</p>
-            </div>
-            <div class="method-panel">
-                <span class="section-kicker">METHOD</span>
-                <div><b>LDA</b><span>Topic discovery</span></div>
-                <div><b>LR</b><span>Classification</span></div>
-            </div>
-        </aside>
+    <div class="row g-3 g-lg-4 mt-1">
+      <div class="col-lg-8">
+        <article class="dominant-card">
+          <div class="card-kicker">DOMINANT TOPIC</div>
+          <div class="dominant-title-row"><h3>{{ result.dominant_topic.name }}</h3><div class="dominant-number">{{ "%.1f"|format(result.dominant_topic.percentage) }}<small>%</small></div></div>
+          <div class="topic-bar"><span style="width:{{ result.dominant_topic.percentage }}%"></span></div>
+          <div class="topic-words">{% for word in result.dominant_topic.words %}<span>{{ word }}</span>{% endfor %}</div>
+        </article>
+      </div>
+      <div class="col-lg-4">
+        <article class="metric-card h-100"><div class="card-kicker">DOCUMENT SIZE</div><strong>{{ result.cleaned_word_count }}</strong><span>cleaned words analyzed</span><p>After preprocessing and normalization.</p></article>
+      </div>
     </div>
 
-    <div class="workspace distribution-workspace mt-4">
-        <div class="workspace-head compact">
-            <div><span class="section-kicker">03 · TOPIC MODEL</span><h3>Topic Distribution</h3><p>Every hidden topic ranked by its contribution to the document.</p></div>
-            <span class="topic-count">8 LDA topics</span>
-        </div>
-        <div class="topic-list">
+    <section class="distribution mt-3 mt-lg-4">
+      <div class="distribution-head"><div><div class="card-kicker">03 · HIDDEN TOPICS</div><h3>Topic distribution</h3></div><span>8 topics discovered</span></div>
+      <div class="topic-table">
         {% for topic in result.topics %}
-            <article class="topic-row {% if loop.first %}topic-row-first{% endif %}">
-                <div class="topic-info"><div><span>Topic {{ topic.number }}</span><strong>{{ topic.name }}</strong></div><b>{{ "%.1f"|format(topic.probability * 100) }}%</b></div>
-                <div class="topic-progress-sm"><div class="progress-bar" style="width: {{ topic.probability * 100 }}%"></div></div>
-                <p>{{ topic.words|join(" · ") }}</p>
-            </article>
+        <article class="topic-item {% if loop.first %}is-dominant{% endif %}">
+          <div class="topic-index">{{ '%02d'|format(topic.number) }}</div>
+          <div class="topic-content"><div class="topic-name-row"><strong>{{ topic.name }}</strong><b>{{ "%.1f"|format(topic.probability * 100) }}%</b></div><div class="topic-line"><span style="width:{{ topic.probability * 100 }}%"></span></div><p>{{ topic.words|join(' · ') }}</p></div>
+        </article>
         {% endfor %}
-        </div>
+      </div>
+    </section>
+
+    <div class="analysis-method mt-3 mt-lg-4"><span><b>LDA</b> discovers hidden topics</span><i></i><span><b>LR</b> predicts document category</span><i></i><span><b>{{ result.cleaned_word_count }}</b> words processed</span></div>
+  </section>
+  {% else %}
+  <section class="process-section mt-5">
+    <div class="eyebrow">HOW IT WORKS</div>
+    <div class="row g-0 process-row">
+      <div class="col-md-4 process-step"><span>01</span><div><h3>Upload</h3><p>Provide a PDF, DOCX or TXT document.</p></div></div>
+      <div class="col-md-4 process-step"><span>02</span><div><h3>Discover</h3><p>LDA finds the hidden themes inside the text.</p></div></div>
+      <div class="col-md-4 process-step"><span>03</span><div><h3>Classify</h3><p>Machine learning predicts its category.</p></div></div>
     </div>
-</section>
-{% else %}
-<!-- HOW IT WORKS -->
-<section class="how-section">
-    <div class="text-center mb-4"><span class="section-kicker">HOW SMARTDOC WORKS</span><h2>From raw text to useful insight.</h2></div>
-    <div class="row g-3">
-        <div class="col-md-4"><div class="step-card"><span>01</span><h3>Upload</h3><p>Add a PDF, DOCX or TXT document.</p></div></div>
-        <div class="col-md-4"><div class="step-card"><span>02</span><h3>Discover</h3><p>LDA extracts hidden themes and topic probabilities.</p></div></div>
-        <div class="col-md-4"><div class="step-card"><span>03</span><h3>Classify</h3><p>Machine learning predicts the document category.</p></div></div>
-    </div>
-</section>
-{% endif %}
-</div>
+  </section>
+  {% endif %}
 </main>
 
-<footer class="site-footer"><div class="container-xxl px-3 px-lg-4"><div class="row align-items-center g-3"><div class="col-md-6 text-center text-md-start"><strong>SmartDoc</strong><span class="footer-muted"> — AI-Based Document Topic Modeling &amp; Classification</span></div><div class="col-md-6"><div class="footer-links justify-content-center justify-content-md-end"><a href="https://github.com/1Y20ash" target="_blank" rel="noopener noreferrer">GitHub · 1Y20ash</a><a href="https://www.linkedin.com/in/1y2ash/" target="_blank" rel="noopener noreferrer">LinkedIn · 1Y2ash</a></div></div></div></div></footer>
+<footer class="footer"><div class="container-xxl px-3 px-lg-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3"><span><b>SmartDoc</b> · AI-Based Document Topic Modeling &amp; Classification</span><div><a href="https://github.com/1Y20ash" target="_blank" rel="noopener noreferrer">GitHub · 1Y20ash</a><a href="https://www.linkedin.com/in/1y2ash/" target="_blank" rel="noopener noreferrer">LinkedIn · 1Y2ash</a></div></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
