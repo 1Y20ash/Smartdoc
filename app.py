@@ -18,10 +18,20 @@ app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_FILE_SIZE
 app.secret_key = "smartdoc-development-key"
 
-
-# Load trained models once when the Flask process starts.
 vectorizer, lda_model = load_topic_model()
 classifier = load_classifier()
+
+# Human-readable interpretations of the topics discovered during LDA training.
+TOPIC_NAMES = {
+    1: "International Politics & Iraq",
+    2: "International Affairs & Business Deals",
+    3: "Government, Courts & Nuclear Affairs",
+    4: "Sports",
+    5: "Science, Space & Economy",
+    6: "Conflict, Crime & Elections",
+    7: "Business & Financial Markets",
+    8: "Technology & Internet",
+}
 
 
 def allowed_file(filename):
@@ -60,11 +70,13 @@ def analyze_document(text):
     ranked_topics = topic_distribution.argsort()[::-1]
 
     for index in ranked_topics:
+        topic_number = int(index + 1)
         topic_results.append(
             {
-                "number": int(index + 1),
+                "number": topic_number,
+                "name": TOPIC_NAMES.get(topic_number, f"Topic {topic_number}"),
                 "probability": float(topic_distribution[index]),
-                "words": topic_words[int(index + 1)],
+                "words": topic_words[topic_number],
             }
         )
 
