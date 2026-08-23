@@ -21,7 +21,6 @@ app.secret_key = "smartdoc-development-key"
 vectorizer, lda_model = load_topic_model()
 classifier = load_classifier()
 
-# Human-readable interpretations of the topics discovered during LDA training.
 TOPIC_NAMES = {
     1: "International Politics & Iraq",
     2: "International Affairs & Business Deals",
@@ -76,13 +75,17 @@ def analyze_document(text):
                 "number": topic_number,
                 "name": TOPIC_NAMES.get(topic_number, f"Topic {topic_number}"),
                 "probability": float(topic_distribution[index]),
+                "percentage": float(topic_distribution[index] * 100),
                 "words": topic_words[topic_number],
             }
         )
 
+    dominant_topic = topic_results[0]
+
     return {
         "category": predicted_category,
         "topics": topic_results,
+        "dominant_topic": dominant_topic,
         "cleaned_word_count": len(cleaned.split()),
     }
 
