@@ -44,3 +44,10 @@ form?.addEventListener('submit', () => {
   analyzeButton.disabled = true;
   analyzeButton.innerHTML = 'Analyzing document <b>…</b>';
 });
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/static/service-worker.js', { scope: '/' })
+      .catch(error => console.warn('SmartDoc service worker registration failed:', error));
+  });
+}
