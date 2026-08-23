@@ -49,13 +49,33 @@
                 </div>
             </div>
 
+            <div class="summary-grid">
+                <div class="card dominant-card">
+                    <p class="eyebrow">DOMINANT TOPIC</p>
+                    <h2>{{ result.dominant_topic.name }}</h2>
+                    <div class="dominant-score">
+                        <strong>{{ "%.1f"|format(result.dominant_topic.percentage) }}%</strong>
+                        <span>Topic {{ result.dominant_topic.number }}</span>
+                    </div>
+                    <div class="bar large"><span style="width: {{ result.dominant_topic.percentage }}%"></span></div>
+                    <p>{{ result.dominant_topic.words|join(" · ") }}</p>
+                </div>
+
+                <div class="card insight-card">
+                    <p class="eyebrow">DOCUMENT INSIGHT</p>
+                    <div class="insight-number">{{ result.cleaned_word_count }}</div>
+                    <strong>Cleaned words analyzed</strong>
+                    <p>SmartDoc converted the document into topic probabilities before classification.</p>
+                </div>
+            </div>
+
             <div class="card topic-card">
                 <div class="section-heading">
                     <div>
-                        <h2>Discovered Topics</h2>
-                        <p>Topics are ranked by their contribution to this document.</p>
+                        <h2>Topic Distribution</h2>
+                        <p>All discovered topics ranked by their contribution to this document.</p>
                     </div>
-                    <span>{{ result.cleaned_word_count }} cleaned words</span>
+                    <span>8 LDA topics</span>
                 </div>
 
                 {% for topic in result.topics %}
