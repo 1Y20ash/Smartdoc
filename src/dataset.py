@@ -11,11 +11,12 @@ from urllib.request import urlopen
 import pandas as pd
 
 
+# AG News uses labels 1-4 in its public CSV files.
 LABELS = {
-    0: "World",
-    1: "Sports",
-    2: "Business",
-    3: "Sci/Tech",
+    1: "World",
+    2: "Sports",
+    3: "Business",
+    4: "Sci/Tech",
 }
 
 AG_NEWS_TRAIN_URL = (
@@ -37,10 +38,15 @@ def _download_csv(url: str) -> pd.DataFrame:
 
 
 def download_ag_news() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Download and normalize the official AG News CSV files."""
+    """Download and normalize the AG News CSV files."""
+    print("Loading AG News dataset...")
     train_raw = _download_csv(AG_NEWS_TRAIN_URL)
     test_raw = _download_csv(AG_NEWS_TEST_URL)
-    return prepare_dataset(train_raw, test_raw)
+    train, test = prepare_dataset(train_raw, test_raw)
+
+    print("\nDetected categories:")
+    print(train["category"].value_counts().sort_index())
+    return train, test
 
 
 def prepare_dataset(train_df: pd.DataFrame, test_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -52,12 +58,20 @@ def prepare_dataset(train_df: pd.DataFrame, test_df: pd.DataFrame) -> tuple[pd.D
     test.columns = ["label", "title", "description"]
 
     for frame in (train, test):
+        frame["label"] = pd.to_numeric(frame["label"], errors="coerce").astype("Int64")
         frame["text"] = (
             frame["title"].fillna("").astype(str)
             + " "
             + frame["description"].fillna("").astype(str)
         ).str.strip()
         frame["category"] = frame["label"].map(LABELS)
+
+    if train["category"].isna().any() or test["category"].isna().any():
+        unknown = sorted(
+            set(train.loc[train["category"].isna(), "label"].dropna().tolist())
+            | set(test.loc[test["category"].isna(), "label"].dropna().tolist())
+        )
+        raise ValueError(f"Unexpected AG News labels found: {unknown}")
 
     return train[["text", "category"]], test[["text", "category"]]
 
@@ -86,10 +100,11 @@ def save_dataset(train: pd.DataFrame, test: pd.DataFrame) -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     train.to_csv(TRAIN_PATH, index=False)
     test.to_csv(TEST_PATH, index=False)
+    print("\nDataset saved successfully.")
 
 
 def load_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Load prepared local datasets."""
+    """Load prepared datasets from local CSV files."""
     if not TRAIN_PATH.exists() or not TEST_PATH.exists():
         raise FileNotFoundError(
             "Prepared AG News files were not found. Run the dataset preparation step first."
