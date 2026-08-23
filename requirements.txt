@@ -1,0 +1,9 @@
+Flask
+pandas
+numpy
+scikit-learn
+nltk
+joblib
+PyMuPDF
+python-docx
+gunicorn
