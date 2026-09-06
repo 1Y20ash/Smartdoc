@@ -6,6 +6,12 @@ The project is centered around **Latent Dirichlet Allocation (LDA)** for topic m
 
 > **Project status:** Academic / Learning Project
 
+## 🌐 Live Demo
+
+The Smartdoc application is deployed and available online:
+
+**[🚀 Open Smartdoc Live Application](https://smartdoc-u7y8.onrender.com/)**
+
 ## 🎯 Objective
 
 The main objective of Smartdoc is to reduce the effort required to organize and understand large collections of text documents by combining:
