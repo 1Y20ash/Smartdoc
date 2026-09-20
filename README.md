@@ -4,6 +4,12 @@
 
 SmartDoc is a Flask-based NLP application that will analyze uploaded documents, discover hidden topics using Latent Dirichlet Allocation (LDA), and classify documents using topic-based features and supervised machine learning.
 
+## 🌐 Live Demo
+
+The Smartdoc application is deployed and available online:
+
+**[🚀 Open Smartdoc Live Application](https://smartdoc-u7y8.onrender.com/)**
+
 ## Planned Features
 
 - PDF, DOCX, and TXT document support
